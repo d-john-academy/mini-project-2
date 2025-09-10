@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-stable
+  namespace: ingress-nginx
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: stable
+  template:
+    metadata:
+      labels:
+        app: stable
+    spec:
+      containers:
+      - name: app-container
+        image: djohnacademy/mini-project:v1
+        ports:
+        - containerPort: 7681
+        volumeMounts:
+        - mountPath: /tmp
+          name: data-volume
+      - name: nginx-sidecar
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: sidecar-html
+          mountPath: /usr/share/nginx/html
+      imagePullSecrets:
+        - name: docker-secret
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: app-pvc
+      - name: sidecar-html
+        configMap:
+          name: sidecar-stable-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sidecar-stable-config
+  namespace: ingress-nginx
+data:
+  index.html: |
+    schedulerv1

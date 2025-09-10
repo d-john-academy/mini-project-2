@@ -1,0 +1,97 @@
+# Service for the stable version
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-stable-svc
+  namespace: ingress-nginx
+spec:
+  type: ClusterIP
+  selector:
+    app: stable
+  ports:
+  - name: ttyd-app
+    protocol: TCP
+    port: 7681
+    targetPort: 7681
+  - name: nginx-app
+    protocol: TCP
+    port: 80
+    targetPort: 80
+---
+# Service for the canary version
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-canary-svc
+  namespace: ingress-nginx
+spec:
+  type: ClusterIP
+  selector:
+    app: canary
+  ports:
+  - name: ttyd-app
+    protocol: TCP
+    port: 7681
+    targetPort: 7681
+  - name: nginx-app
+    protocol: TCP
+    port: 80
+    targetPort: 80
+---
+# Ingress-stable
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: stable
+  namespace: ingress-nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: app-stable-svc
+            port:
+              name: ttyd-app
+      - pathType: Exact
+        path: /version
+        backend:
+          service:
+            name: app-stable-svc
+            port:
+              name: nginx-app
+---
+# Ingress-canary
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: canary
+  namespace: ingress-nginx
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "0"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: app-canary-svc
+            port:
+              name: ttyd-app
+      - pathType: Exact
+        path: /version
+        backend:
+          service:
+            name: app-canary-svc
+            port:
+              name: nginx-app
