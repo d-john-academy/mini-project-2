@@ -9,11 +9,9 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    dir('v2') {
-                        docker.withRegistry('https://registry-1.docker.io', 'docker-cred') {
-                            def customImage = docker.build("djohnacademy/mini-project:${GIT_COMMIT}")
-                            customImage.push()
-                        }
+                    docker.withRegistry('https://registry-1.docker.io', 'docker-cred') {
+                        def customImage = docker.build("djohnacademy/mini-project:${GIT_COMMIT}")
+                        customImage.push()
                     }
                     dir('k8s') {
                         withKubeConfig(
