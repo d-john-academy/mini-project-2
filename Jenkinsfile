@@ -175,6 +175,7 @@ pipeline {
                         ) {
                             dir('k8s') {
                                 sh 'sed -E -i "s;djohnacademy/mini-project.*;djohnacademy/mini-project:${GIT_COMMIT};g" deployment-stable.yaml'
+                                sh 'kubectl apply -f deployment-stable.yaml'
                                 sh 'kubectl delete -f deployment-canary.yaml'
                             }
                         }
