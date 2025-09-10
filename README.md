@@ -1,2 +1,1 @@
-# mini-project-2-alt
-test
+# mini-project-2
