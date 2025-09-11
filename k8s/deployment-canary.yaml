@@ -28,6 +28,8 @@ spec:
         volumeMounts:
         - name: sidecar-html
           mountPath: /usr/share/nginx/html
+      imagePullSecrets:
+      - name: docker-secret
       volumes:
       - name: data-volume
         persistentVolumeClaim:
