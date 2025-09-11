@@ -9,9 +9,11 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    docker.withRegistry('https://registry-1.docker.io', 'docker-cred') {
-                        def customImage = docker.build("djohnacademy/mini-project:${GIT_COMMIT}")
-                        customImage.push()
+                    dir('v2') {
+                        docker.withRegistry('https://registry-1.docker.io', 'docker-cred') {
+                            def customImage = docker.build("djohnacademy/mini-project:${GIT_COMMIT}")
+                            customImage.push()
+                        }
                     }
                     dir('k8s') {
                         withKubeConfig(
@@ -174,9 +176,7 @@ pipeline {
                             serverUrl: 'https://jump-host:6443'
                         ) {
                             dir('k8s') {
-                                sh 'sed -E -i "s;djohnacademy/mini-project.*;djohnacademy/mini-project:${GIT_COMMIT};g" deployment-stable.yaml'
-                                sh 'sed -i "s/schedulerv1/schedulerv2/g" deployment-stable.yaml'
-                                sh 'kubectl apply -f deployment-stable.yaml'
+                                sh 'sed -E "s;djohnacademy/mini-project.*;djohnacademy/mini-project:${GIT_COMMIT};g" deployment-stable.yaml'
                                 sh 'kubectl delete -f deployment-canary.yaml'
                             }
                         }

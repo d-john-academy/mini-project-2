@@ -114,7 +114,7 @@ print_schedule() {
 }
 
 while true; do
-    read -p "(schedulerv2) Enter Employee name (or 'print' to display schedule, 'remove' to unassign employee, 'exit' to quit): " name
+    read -p "(schedulerv1) Enter Employee name (or 'print' to display schedule, 'remove' to unassign employee, 'exit' to quit): " name
     name=$(echo "$name" | sed 's/^ *//;s/ *$//' | tr '[:upper:]' '[:lower:]')
     
     if [[ "$name" == "exit" ]]; then
